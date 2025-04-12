@@ -5,7 +5,7 @@ import { RigidBody } from "@react-three/rapier";
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
-const Glove = ({position=[25,3,3], scale=[10, 10, 10], rot=[0, Math.PI, 0], ...props }) => {
+const Glove = ({position=[25,3,3], scale=[10, 10, 10], rot=[0, Math.PI, 0], handPosition, ...props }) => {
   const { scene } = useGLTF("/models/boxing_gloves.glb"); // Ensure the path is correct
   const group = useRef(); // Ref for the group containing the model
   const clonedScene = scene.clone()
@@ -21,6 +21,12 @@ const Glove = ({position=[25,3,3], scale=[10, 10, 10], rot=[0, Math.PI, 0], ...p
       
     });
   }, [clonedScene]);
+
+  useFrame(() => {
+    if (handPosition && group.current) {
+        group.current.position.set(handPosition.x, handPosition.y, handPosition.z);
+    }
+  });
 
 
   // Add rotation effect
