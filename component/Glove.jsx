@@ -32,7 +32,7 @@ const Glove = ({position=[25,3,3], scale=[10, 10, 10], rot=[0, Math.PI, 0], hand
   // Add rotation effect
 
   return (
-    <RigidBody type="fixed" colliders="trimesh" position={position} scale={scale} rotation={rot}>
+    <RigidBody type="kinematicVelocity" colliders="trimesh" position={position} scale={scale} rotation={rot}>
       <primitive ref={group} object={clonedScene} {...props} />
     </RigidBody>
   );

@@ -1,94 +1,102 @@
-import { Hands } from "@mediapipe/hands";
-import { FaceMesh } from "@mediapipe/face_mesh";
+import { Hands, HAND_CONNECTIONS } from "@mediapipe/hands";
+import { FaceMesh, FACEMESH_TESSELATION } from "@mediapipe/face_mesh";
+import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 
-export const createDetection = (videoElement) => {
-    const video = videoElement;
+export const createDetection = (videoElement, canvasElement) => {
+  const video = videoElement;
+  const canvas = canvasElement;
+  const ctx = canvas.getContext("2d");
 
-    // Initialize MediaPipe Hands and FaceMesh
-    const hands = new Hands({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
-    });
+  // Initialize MediaPipe Hands and FaceMesh
+  const hands = new Hands({
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+  });
 
-    const faceMesh = new FaceMesh({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
-    });
+  const faceMesh = new FaceMesh({
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+  });
 
-    hands.setOptions({
-        maxNumHands: 2,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.7,
-        minTrackingConfidence: 0.7,
-    });
+  hands.setOptions({
+    maxNumHands: 2,
+    modelComplexity: 1,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5,
+  });
 
-    faceMesh.setOptions({
-        maxNumFaces: 1,
-        minDetectionConfidence: 0.7,
-        minTrackingConfidence: 0.7,
-    });
+  faceMesh.setOptions({
+    maxNumFaces: 1,
+    minDetectionConfidence: 0.7,
+    minTrackingConfidence: 0.7,
+  });
 
-    const setupCamera = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: "user",
-                    width: { ideal: 640 },
-                    height: { ideal: 480 },
-                },
-            });
+  const setupCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+        },
+      });
+  
+      console.log("Camera stream started."); // Log when the camera starts
+      video.srcObject = stream;
+  
+      await new Promise((resolve) => {
+        video.onloadedmetadata = () => {
+          video.play();
+          resolve();
+        };
+      });
+  
+      hands.onResults(onHandsResults);
+      faceMesh.onResults(onFaceResults);
+    } catch (error) {
+      console.error("Error accessing webcam:", error);
+      alert("Could not access webcam. Please make sure you have granted camera permissions.");
+      throw error;
+    }
+  };
 
-            video.srcObject = stream;
+  const onHandsResults = (results) => {
+    console.log("onHandsResults called:", results); // Log results
+    if (results.multiHandLandmarks) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+  
+      results.multiHandLandmarks.forEach((landmarks) => {
+        drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: "#00FF00", lineWidth: 2 });
+        drawLandmarks(ctx, landmarks, { color: "#FF0000", lineWidth: 1 });
+      });
+    } else {
+      console.log("No hands detected."); // Log if no hands are detected
+    }
+  };
+  
+  const onFaceResults = (results) => {
+    console.log("onFaceResults called:", results); // Log results
+    if (results.multiFaceLandmarks) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+  
+      results.multiFaceLandmarks.forEach((landmarks) => {
+        drawConnectors(ctx, landmarks, FACEMESH_TESSELATION, { color: "#C0C0C070", lineWidth: 1 });
+        drawLandmarks(ctx, landmarks, { color: "#FF0000", lineWidth: 1 });
+      });
+    } else {
+      console.log("No face detected."); // Log if no face is detected
+    }
+  };
 
-            await new Promise((resolve) => {
-                video.onloadedmetadata = () => {
-                    video.play();
-                    resolve();
-                };
-            });
+  hands.onResults((results) => {
+    console.log("Hands detection results:", results);
+    onHandsResults(results);
+  });
+  
+  faceMesh.onResults((results) => {
+    console.log("Face detection results:", results);
+    onFaceResults(results);
+  });
 
-            hands.onResults(onHandsResults);
-            faceMesh.onResults(onFaceResults);
-        } catch (error) {
-            console.error("Error accessing webcam:", error);
-            alert("Could not access webcam. Please make sure you have granted camera permissions.");
-            throw error;
-        }
-    };
-
-    const onHandsResults = (results) => {
-        if (results.multiHandLandmarks && results.multiHandedness) {
-            results.multiHandLandmarks.forEach((landmarks, index) => {
-                const handType = results.multiHandedness[index].label; // "Left" or "Right"
-                const wrist = landmarks[0];
-                const normalizedX = wrist.x * 2 - 1; // Normalize to [-1, 1]
-                const normalizedY = -(wrist.y * 2 - 1); // Normalize to [-1, 1]
-                const z = wrist.z; // Depth value
-
-                const handPosition = { x: normalizedX * 5, y: normalizedY * 5, z: z * 5 };
-                console.log(`${handType} hand position:`, handPosition);
-                // Emit events for left and right hands
-                const event = new CustomEvent(`${handType.toLowerCase()}HandPositionUpdate`, { detail: handPosition });
-                window.dispatchEvent(event);
-            });
-        }
-    };
-
-    const onFaceResults = (results) => {
-        if (results.multiFaceLandmarks) {
-            const faceLandmarks = results.multiFaceLandmarks[0];
-            const nose = faceLandmarks[1]; // Example: Nose landmark
-            const normalizedX = nose.x * 2 - 1; // Normalize to [-1, 1]
-            const normalizedY = -(nose.y * 2 - 1); // Normalize to [-1, 1]
-            const z = nose.z; // Depth value
-
-            const facePosition = { x: normalizedX * 5, y: normalizedY * 5, z: z * 5 };
-
-            // Emit event for face position
-            const event = new CustomEvent("facePositionUpdate", { detail: facePosition });
-            window.dispatchEvent(event);
-        }
-    };
-
-    return {
-        setupCamera,
-    };
+  return {
+    setupCamera,
+  };
 };

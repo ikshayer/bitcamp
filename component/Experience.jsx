@@ -10,8 +10,9 @@ import { createDetection } from "./game.js";
 import Glove from "./Glove.jsx";
 import { Head } from "./Head.jsx";
 import RightGlove from "./RightGlove.jsx";
+import { useHandTracking } from "../hooks/useHandTracking.js";
 
-export const Experience = ({videoRef}) => {
+export const Experience = ({videoRef, canvasRef}) => {
 
 
   
@@ -35,48 +36,7 @@ export const Experience = ({videoRef}) => {
   });
 */
 
-const [leftHandPosition, setLeftHandPosition] = useState({ x: 0, y: 0, z: 0 });
-const [rightHandPosition, setRightHandPosition] = useState({ x: 0, y: 0, z: 0 });
-const [facePosition, setFacePosition] = useState({ x: 0, y: 0, z: 0 });
-
-useEffect(() => {
-    // Listen for left hand position updates
-
-    const { setupCamera } = createDetection(videoRef.current);
-
-        setupCamera()
-            .then(() => {
-                console.log("Camera setup complete.");
-            })
-            .catch((error) => {
-                console.error("Error during camera setup:", error);
-            });
-
-        const handleLeftHandUpdate = (event) => {
-            setLeftHandPosition(event.detail);
-            console.log("Left Hand Position Updated:", event.detail); // Log left hand position
-        };
-
-        const handleRightHandUpdate = (event) => {
-            setRightHandPosition(event.detail);
-            console.log("Right Hand Position Updated:", event.detail); // Log right hand position
-        };
-
-        const handleFaceUpdate = (event) => {
-            setFacePosition(event.detail);
-            console.log("Face Position Updated:", event.detail); // Log face position
-        };
-
-        window.addEventListener("lefthandpositionupdate", handleLeftHandUpdate);
-        window.addEventListener("righthandpositionupdate", handleRightHandUpdate);
-        window.addEventListener("facepositionupdate", handleFaceUpdate);
-
-        return () => {
-            window.removeEventListener("lefthandpositionupdate", handleLeftHandUpdate);
-            window.removeEventListener("righthandpositionupdate", handleRightHandUpdate);
-            window.removeEventListener("facepositionupdate", handleFaceUpdate);
-        };
-    }, []);
+  const { leftHand, rightHand, face } = useHandTracking(videoRef, canvasRef);
 
   return (
     <>
@@ -91,8 +51,8 @@ useEffect(() => {
       
     
       <Physics debug={true}>
-        <Glove handPosition={leftHandPosition}/>
-        <RightGlove handPosition={rightHandPosition} position={[25,3,-3]} rot={[0, Math.PI, 0]}/>
+        <Glove handPosition={leftHand}/>
+        <RightGlove handPosition={rightHand} position={[25,3,-3]} rot={[0, Math.PI, 0]}/>
         <Head position={[8, 15, -0.5]} scale={[0.05, 0.05, 0.05]} rot={[0, Math.PI/2, 0]}/>
         <Glove position={[8, 2, 2]} rot={[0, 0, 0]}/>
         <RightGlove position={[8,2,-2.5]} rot={[0, 0, 0]}/>
