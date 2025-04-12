@@ -1,0 +1,15 @@
+import { useFrame } from "@react-three/fiber";
+import { useRapier } from "@react-three/rapier";
+
+const PhysicsStepper = () => {
+  const { world } = useRapier();
+
+  useFrame(() => {
+    world.step(); // Manually step the physics world
+    console.log('Frame updated')
+  });
+
+  return null;
+};
+
+export default PhysicsStepper;
