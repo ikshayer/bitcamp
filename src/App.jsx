@@ -1,6 +1,7 @@
 import { Canvas } from "@react-three/fiber"
 import { Experience } from "../component/Experience"
 import { useRef, useEffect, useState } from "react"
+import Answerer from "../component/Answerer";
 
 
 export default function App() {
@@ -11,16 +12,14 @@ export default function App() {
   const cooldownRef = useRef(false); // Cooldown state
 
 
-  const audio = new Audio("/hit-sound.mp3"); // Path to your MP3 file
-      audio.play();
-
   const onHit = () => {
     if (!cooldownRef.current) {
       setScore((prevScore) => prevScore + 1);
-      console.log("Hit detected! Current score:", score + 1);
+      //console.log("Hit detected! Current score:", score + 1);
       cooldownRef.current = true; // Activate cooldown
 
-      const audio = new Audio("/audio/boom2.mp3"); // Path to your MP3 file
+      const audioFile = Math.random() < 0.6 ? "/audio/niceShot.mp3" : "/audio/niceShot3.mp3";
+      const audio = new Audio(audioFile); // Create a new Audio object with the selected file
       audio.play();
 
 
@@ -53,6 +52,8 @@ export default function App() {
   
   return(
     <>
+
+
     <video id="video-feed" 
     style={{
       position: "absolute",

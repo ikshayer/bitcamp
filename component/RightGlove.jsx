@@ -68,7 +68,7 @@ const Glove = ({
       friction={0.2}
       scale={scale}
       onCollisionEnter={({ other }) => {
-        console.log("hits right");
+        //console.log("hits right");
         if(other.rigidBodyObject.name === "head")
           onHit();
         velocity.set(
