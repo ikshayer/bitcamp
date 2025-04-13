@@ -12,7 +12,7 @@ import { Head } from "./Head.jsx";
 import RightGlove from "./RightGlove.jsx";
 import { useHandTracking } from "../hooks/useHandTracking.js";
 
-export const Experience = ({videoRef, canvasRef}) => {
+export const Experience = ({videoRef, canvasRef, onHit}) => {
 
 
   
@@ -36,7 +36,7 @@ export const Experience = ({videoRef, canvasRef}) => {
   });
 */
 
-  const { leftHand, rightHand, face } = useHandTracking(videoRef, canvasRef);
+  const { leftHand, rightHand } = useHandTracking(videoRef, canvasRef);
 
   return (
     <>
@@ -51,11 +51,11 @@ export const Experience = ({videoRef, canvasRef}) => {
       
     
       <Physics debug={true}>
-        <Glove handPosition={leftHand}/>
-        <RightGlove handPosition={rightHand} position={[25,3,-3]} rot={[0, Math.PI, 0]}/>
+        <Glove handPosition={leftHand} onHit={onHit}/>
+        <RightGlove handPosition={rightHand} position={[25,3,-3]} rot={[0, Math.PI, 0]} onHit={onHit}/>
         <Head position={[8, 15, -0.5]} scale={[0.05, 0.05, 0.05]} rot={[0, Math.PI/2, 0]}/>
-        <Glove position={[8, 2, 2]} rot={[0, 0, 0]}/>
-        <RightGlove position={[8,2,-2.5]} rot={[0, 0, 0]}/>
+        {/*<Glove position={[8, 2, 2]} rot={[0, 0, 0]} onHit={onHit}/>
+        <RightGlove position={[8,2,-2.5]} rot={[0, 0, 0]} onHit={onHit}/>*/}
       </Physics>
 
     </>

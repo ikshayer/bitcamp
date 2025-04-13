@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { Hands } from "@mediapipe/hands";
-import { FaceMesh } from "@mediapipe/face_mesh";
+
 
 export function useHandTracking(videoRef, canvasRef) {
   const [leftHand, setLeftHand] = useState(null);
   const [rightHand, setRightHand] = useState(null);
-  const [face, setFace] = useState(null);
 
   useEffect(() => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -18,24 +17,16 @@ export function useHandTracking(videoRef, canvasRef) {
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
     });
 
-    const faceMesh = new FaceMesh({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
-    });
-
     hands.setOptions({
       maxNumHands: 2,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.6,
-      minTrackingConfidence: 0.5,
-    });
-
-    faceMesh.setOptions({
-      maxNumFaces: 1,
-      minDetectionConfidence: 0.6,
-      minTrackingConfidence: 0.6,
+      modelComplexity: 0,
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.7,
     });
 
     hands.onResults((results) => {
+
+        
 
       const landmarks = results.multiHandLandmarks;
       const handedness = results.multiHandedness;
@@ -46,40 +37,55 @@ export function useHandTracking(videoRef, canvasRef) {
         landmarks.forEach((landmarkSet, i) => {
           const label = handedness[i].label;
           const wrist = landmarkSet[0];
+          const middleKnuckle = landmarkSet[9];
 
-          const position = {
-            x: wrist.x,
-            y: -wrist.y,
-            z: 5*wrist.x,
-          };
+            const dx = middleKnuckle.x - wrist.x;
+            const dy = middleKnuckle.y - wrist.y;
+            const dz = middleKnuckle.z - wrist.z;
+
+            const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+          
 
 
-          if (label === "Left") {
+          if (label === "Right") {
+
+            let position = {
+           
+                x:  -(-dist * 130 + 1.94) + 0.6091395289270614 -1.2 -0.3,
+                y: (0.5 - wrist.y) * 12 +1.33 - 0.2100561428070069,
+                z: -((wrist.x - 0.5) * 12 - 0.87) - 0.34310298681259155,
+              };
+            position = {
+           
+                x:  -position.x + 7.3 + 8 + 16 ,
+                y: position.y + 0.06 -0.40 + 1.35+6,
+                z: -position.z - 0.77 + 0.44,
+              };    
+              console.log("left")
+              console.log(position)
             setLeftHand(position);
-          } else if (label === "Right") {
+          } else if (label === "Left") {
+            
+            let position = {
+           
+                x:  -(-dist * 130 + 1.94) + 0.6091395289270614 -1.2 -0.3,
+                y: (0.5 - wrist.y) * 12 +1.33 - 0.2100561428070069,
+                z: -((wrist.x - 0.5) * 12 - 0.87) - 0.34310298681259155,
+              };
+            position = {
+           
+                x:  -position.x + 7.3 + 8 + 17 ,
+                y: position.y + 0.06 -0.40 + 1.35+6,
+                z: -position.z - 0.77 + 0.44,
+              };    
+
+              console.log(position)
             setRightHand(position);
           }
         });
       } else {
         setLeftHand(null);
         setRightHand(null);
-      }
-    });
-
-    faceMesh.onResults((results) => {
-      const landmarks = results.multiFaceLandmarks;
-      if (landmarks && landmarks[0]) {
-        const noseTip = landmarks[0][1]; // nose tip
-        const facePos = {
-          x: noseTip.x,
-          y: noseTip.y,
-          z: noseTip.z,
-        };
- 
-        setFace(facePos);
-      } else {
-        console.log("🚫 No face detected");
-        setFace(null);
       }
     });
 
@@ -102,7 +108,7 @@ export function useHandTracking(videoRef, canvasRef) {
         const detect = async () => {
           if (video.readyState === 4) {
             await hands.send({ image: video });
-            await faceMesh.send({ image: video });
+            
           }
           requestAnimationFrame(detect);
         };
@@ -124,5 +130,5 @@ export function useHandTracking(videoRef, canvasRef) {
     };
   }, [videoRef, canvasRef]);
 
-  return { leftHand, rightHand, face };
+  return { leftHand, rightHand};
 }

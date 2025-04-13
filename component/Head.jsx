@@ -25,7 +25,9 @@ export const Head = ({position, scale, rot, ...props}) => {
       // Add rotation effect
     
       return (
-        <RigidBody type="fixed" colliders="trimesh" position={position} scale={scale} rotation={rot}>
+        <RigidBody type="fixed" colliders="trimesh" name="head"
+    
+        position={position} scale={scale} rotation={rot}>
           <primitive ref={group} object={clonedScene} {...props} />
         </RigidBody>
       );

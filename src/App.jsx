@@ -1,12 +1,18 @@
 import { Canvas } from "@react-three/fiber"
 import { Experience } from "../component/Experience"
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 
 
 export default function App() {
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const [score, setScore] = useState(0);
+
+  const onHit = () => {
+    setScore((prevScore) => prevScore + 1);
+    console.log("Hit detected! Current score:", score);
+  }
 
   useEffect(() => {
     const video = videoRef.current;
@@ -45,6 +51,10 @@ export default function App() {
     muted
     ref={videoRef}/>
 
+    <div style={{ position: "absolute", top: "10px", left: "10px", zIndex: 1000, backgroundColor: 'white', borderRadius: "24px"}}>
+      <h1 style={{ color: "black", fontSize: "24px", paddingInline:"24px"}}>Score: {score}</h1>
+    </div>
+
     <canvas
         id="landmark-overlay"
         ref={canvasRef}
@@ -62,7 +72,7 @@ export default function App() {
     <div style={{ height: '100vh', width: '100%', position: 'relative'}}>
     <Canvas camera={{position: [20, 20, 0]}}>
       
-    <Experience videoRef={videoRef} canvasRef={canvasRef}/>
+    <Experience videoRef={videoRef} canvasRef={canvasRef} onHit={onHit}/>
     </Canvas>
     </div>
     </>
