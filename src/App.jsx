@@ -1,7 +1,6 @@
 import { Canvas } from "@react-three/fiber"
 import { Experience } from "../component/Experience"
 import { useRef, useEffect, useState } from "react"
-import Answerer from "../component/Answerer";
 
 
 export default function App() {
