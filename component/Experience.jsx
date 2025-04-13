@@ -6,13 +6,13 @@ import { Physics } from "@react-three/rapier";
 import {useState, useRef, useEffect } from "react";
 // import { CharacterController } from "./CharacterController";
 import { createDetection } from "./game.js";
-
+import { HeadFixed } from "./HeadFixed.jsx";
 import Glove from "./Glove.jsx";
 import { Head } from "./Head.jsx";
 import RightGlove from "./RightGlove.jsx";
 import { useHandTracking } from "../hooks/useHandTracking.js";
 
-export const Experience = ({videoRef, canvasRef, onHit}) => {
+export const Experience = ({videoRef, canvasRef, onHit, headMoving}) => {
 
 
   
@@ -47,13 +47,13 @@ export const Experience = ({videoRef, canvasRef, onHit}) => {
       >
       </directionalLight>
       <ambientLight intensity={1} />
-      <OrbitControls/>
+     
       
     
       <Physics>
         <Glove handPosition={leftHand} onHit={onHit}/>
         <RightGlove handPosition={rightHand} position={[25,3,-3]} rot={[0, Math.PI, 0]} onHit={onHit}/>
-        <Head position={[8, 15, -0.5]} scale={[0.05, 0.05, 0.05]} rot={[0, Math.PI/2, 0]}/>
+        {headMoving ? <Head position={[8, 15, -0.5]} scale={[0.05, 0.05, 0.05]} rot={[0, Math.PI/2, 0]}/> : <HeadFixed position={[8, 15, -0.5]} scale={[0.05, 0.05, 0.05]} rot={[0, Math.PI/2, 0]}/>}
         {/*<Glove position={[8, 2, 2]} rot={[0, 0, 0]} onHit={onHit}/>
         <RightGlove position={[8,2,-2.5]} rot={[0, 0, 0]} onHit={onHit}/>*/}
       </Physics>

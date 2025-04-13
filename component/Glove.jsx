@@ -70,13 +70,7 @@ const Glove = ({
       onCollisionEnter={({ other }) => {
         //console.log("hits left");
         if(other.rigidBodyObject.name === "head"){
-          const linvel = rigidBodyRef.current.linvel();
-          const velocityMagnitude = Math.sqrt(
-            linvel.x ** 2 + linvel.y ** 2 + linvel.z ** 2
-          );
-
-          // Calculate approximate force (Force = Mass × Velocity)
-          const force = mass * velocityMagnitude;
+          
 
           //console.log(`Velocity Magnitude: ${velocityMagnitude}`);
           //console.log(`Force Exerted: ${force}`);
