@@ -50,7 +50,7 @@ export const Experience = ({videoRef, canvasRef, onHit}) => {
       <OrbitControls/>
       
     
-      <Physics debug={true}>
+      <Physics>
         <Glove handPosition={leftHand} onHit={onHit}/>
         <RightGlove handPosition={rightHand} position={[25,3,-3]} rot={[0, Math.PI, 0]} onHit={onHit}/>
         <Head position={[8, 15, -0.5]} scale={[0.05, 0.05, 0.05]} rot={[0, Math.PI/2, 0]}/>

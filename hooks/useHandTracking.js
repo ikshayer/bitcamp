@@ -61,8 +61,8 @@ export function useHandTracking(videoRef, canvasRef) {
                 y: position.y + 0.06 -0.40 + 1.35+6,
                 z: -position.z - 0.77 + 0.44,
               };    
-              console.log("left")
-              console.log(position)
+              //console.log("left")
+              //console.log(position)
             setLeftHand(position);
           } else if (label === "Left") {
             
@@ -79,7 +79,7 @@ export function useHandTracking(videoRef, canvasRef) {
                 z: -position.z - 0.77 + 0.44,
               };    
 
-              console.log(position)
+             // console.log(position)
             setRightHand(position);
           }
         });

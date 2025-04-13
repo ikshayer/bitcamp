@@ -8,11 +8,28 @@ export default function App() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [score, setScore] = useState(0);
+  const cooldownRef = useRef(false); // Cooldown state
+
+
+  const audio = new Audio("/hit-sound.mp3"); // Path to your MP3 file
+      audio.play();
 
   const onHit = () => {
-    setScore((prevScore) => prevScore + 1);
-    console.log("Hit detected! Current score:", score);
-  }
+    if (!cooldownRef.current) {
+      setScore((prevScore) => prevScore + 1);
+      console.log("Hit detected! Current score:", score + 1);
+      cooldownRef.current = true; // Activate cooldown
+
+      const audio = new Audio("/audio/boom2.mp3"); // Path to your MP3 file
+      audio.play();
+
+
+      // Reset cooldown after 1 second
+      setTimeout(() => {
+        cooldownRef.current = false;
+      }, 3000); // Adjust the cooldown duration as needed
+    }
+  };
 
   useEffect(() => {
     const video = videoRef.current;
