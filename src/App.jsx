@@ -7,11 +7,13 @@ export default function App() {
   const canvasRef = useRef(null);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
-  const [timer, setTimer] = useState(10);
+  const [timer, setTimer] = useState(30);
   const cooldownRef = useRef(false);
   const intervalRef = useRef(null);
   const scoreRef = useRef(0); // Ref to track the current score
   const [headMoving, setHeadMoving] = useState(false); // State to track the head type
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [playerName, setPlayerName] = useState("");
 
   const onHit = () => {
     if (!cooldownRef.current) {
@@ -36,24 +38,26 @@ export default function App() {
 
   const startTimer = () => {
     setScore(0);
-    setTimer(10);
-  
+    setTimer(30);
+
     intervalRef.current = setInterval(() => {
       setTimer((prevTimer) => {
         if (prevTimer <= 1) {
           clearInterval(intervalRef.current);
-  
-          // Get the current score value before resetting it
-          setHighScore((prevHighScore) => {
-            if (scoreRef.current > prevHighScore) {
-              console.log("New High Score!", scoreRef.current);
-              return scoreRef.current; // Use the scoreRef value which holds the latest score
-            }
-            return prevHighScore;
-          });
-  
+
+          // Add the current score to the leaderboard if it's valid
+          if (scoreRef.current > 0) {
+            const newLeaderboard = [
+              ...leaderboard,
+              { name: playerName || "Anonymous", score: scoreRef.current },
+            ];
+            newLeaderboard.sort((a, b) => b.score - a.score).slice(0, 10); // Keep top 10 scores
+            setLeaderboard(newLeaderboard);
+          }
+
+          setHighScore((prevHighScore) => Math.max(scoreRef.current, prevHighScore));
           setScore(0);
-          return 10; // Reset timer
+          return 30; // Reset timer
         }
         return prevTimer - 1;
       });
@@ -151,6 +155,32 @@ export default function App() {
         >
           {headMoving ? "Level 1" : "Level 2"}
         </button>
+        <div style={{ marginTop: "16px" }}>
+            <input
+              type="text"
+              placeholder="Enter your name"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              style={{
+                padding: "8px",
+                fontSize: "16px",
+                borderRadius: "8px",
+                border: "1px solid #ccc",
+                width: "90%",
+                color: "black !important",
+              }}
+            />
+          </div>
+          <div>
+          <h2 style={{ color: "black", fontSize: "20px" }}>Leaderboard</h2>
+          <ol style={{ color: "black", listStyleType: "none"}}>
+            {leaderboard.map(({ name, score }, index) => (
+              <li key={index}>
+                {index + 1}. {name} - {score}
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
 
     <canvas
